@@ -1,9 +1,3 @@
-#include<iostream>
-#include<vector>
-#include<string>
-#include<math.h>
-#include<cstring>
-
 namespace LNums {
     class LNum {
     public:
