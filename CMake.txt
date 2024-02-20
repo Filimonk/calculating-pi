@@ -6,8 +6,12 @@ set(SOURCE_EXE PI.cpp)
 
 set(SOURCE_LIB LNum.cpp)
 
+set(SOURCE_LIB tests.cpp)
+
 add_library(LNum STATIC ${SOURCE_LIB})
 
 add_executable(PI ${SOURCE_EXE})
 
-target_link_libraries(PI LNum)
+add_executable(tests ${SOURCE_EXE})
+
+target_link_libraries(PI tests LNum)
