@@ -9,7 +9,7 @@ public:
 
     LNum()
     {
-        num.resize((accuracy_ + orderOfBase - 1) / orderOfBase);
+        num.resize((accuracy_ + orderOfBase - 1) / orderOfBase + 1);
         countOfLNums = 1;
     }
 
@@ -134,7 +134,8 @@ public:
         accuracy_ = accuracy;
     }
 
-    LNum abs() {
+    LNum abs()
+    {
         LNum absThis = *this;
         absThis.sign_ = 1;
 
@@ -151,7 +152,8 @@ public:
         return support;
     }
 
-    LNum & operator=(const LNum other) {
+    LNum & operator=(const LNum other)
+    {
         num = other.num;
         sign_ = other.sign_;
 
@@ -402,7 +404,7 @@ public:
     LNum operator/(LNum & other)
     {
         //std::cout << "Деление\n";
-        if (other == LNum(0)) {
+        if (other.abs() == LNum(0)) {
             std::cout << "ОШИБКА! Произошло деление на 0.\n";
         }
 
@@ -502,12 +504,6 @@ public:
         }
         std::cout << "\n";
     }
-
-    ~LNum()
-    {
-        --countOfLNums;
-    }
-
 
 private:
 
