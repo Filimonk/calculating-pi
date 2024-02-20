@@ -9,8 +9,8 @@ public:
 
     LNum()
     {
-        num.resize((accuracy_ + orderOfBase - 1) / orderOfBase);
-        ++countOfLNums;
+        num.resize((accuracy_ + orderOfBase - 1) / orderOfBase + 1);
+        countOfLNums = 1;
     }
 
     explicit LNum(double startVal)
@@ -20,7 +20,7 @@ public:
         long long numberOfDec = (accuracy_ + orderOfBase - 1) /
                                    orderOfBase * orderOfBase;
 
-        ++countOfLNums;
+        countOfLNums = 1;
 
         std::string strStartVal = std::to_string(startVal);
         std::string strIntPart = "";
@@ -63,19 +63,20 @@ public:
         }
     }
 
-    explicit LNum(int startVal) {
+    explicit LNum(int startVal)
+    {
         LNum support(static_cast<double>(startVal));
         (*this) = support;
         
-        ++countOfLNums;
+        countOfLNums = 1;
     }
-
+    
     LNum(const char* startVal)
     {
         long long numberOfDec = (accuracy_ + orderOfBase - 1) /
                                    orderOfBase * orderOfBase;
 
-        ++countOfLNums;
+        countOfLNums = 1;
 
         std::string strStartVal = "";
 
@@ -133,55 +134,63 @@ public:
         accuracy_ = accuracy;
     }
 
-    LNum abs() {
+    LNum abs()
+    {
         LNum absThis = *this;
         absThis.sign_ = 1;
 
         return absThis;
     }
 
-    LNum & operator-()
+    LNum operator-()
     {
-        sign_ *= -1;
-        return (*this);
+        LNum support;
+        
+        support.num = num;
+        support.sign_ = -sign_;
+        
+        return support;
     }
 
-    LNum & operator=(const LNum other) {
-        ++countOfLNums;
-
+    LNum & operator=(const LNum other)
+    {
         num = other.num;
         sign_ = other.sign_;
 
         return (*this);
     }
     
-    void clear()
+    void clearLeadingZeros()
     {
         int lenth = static_cast<int>(num.size());
         for (int i = lenth-1; 
                     i > (accuracy_ + orderOfBase - 1) / orderOfBase; --i) {
-                        if (num[i] == 0) {
-                            num.pop_back();
-                        }
-                        else {
-                            return;
-                        }
-                    }
+            
+            if (num[i] == 0) {
+                num.pop_back();
+            }
+            else {
+                return;
+            }
+        }
     }
 
     bool operator==(const LNum &other)
     {
+        //std::cout << "Сравнения ==\n";
         return (sign_ == other.sign_) && (num == other.num);
     }
 
     bool operator!=(const LNum &other) 
     {
+        //std::cout << "Сравнение !=\n";
         return !((*this) == other);
     }
 
     bool operator>(const LNum &other)
     {
 
+        //std::cout << "Сравнение >\n";
         if (sign_ != other.sign_) {
             return sign_ > other.sign_;
         }
@@ -222,11 +231,13 @@ public:
 
     bool operator<(const LNum &other)
     {
+        //std::cout << "Сравнении <\n";
         return !(((*this) == other) || ((*this) > other));
     }
     
     LNum sumWithDifferentSigns(LNum &other)
     {
+        //std::cout << "Сумма чисел разных знаков\n";
         LNum result;
         int base = pow(10, orderOfBase);
 
@@ -276,12 +287,13 @@ public:
         return result;
     }
 
-    LNum operator+(LNum &other)
+    LNum operator+(LNum other)
     {
         if (sign_ != other.sign_) {
             return sumWithDifferentSigns(other);
         }
         
+        //std::cout << "Сумма чисел с одинаковым знаком\n";
         LNum result;
         int base = pow(10, orderOfBase);
 
@@ -323,11 +335,15 @@ public:
 
     LNum operator-(LNum &other)
     {
-        return (*this) + (-other);
+        //std::cout << "Разность\n";
+        LNum result = (*this) + (-other);
+        
+        return result;
     }
 
     LNum operator*(const LNum &other) const
     {
+        //std::cout << "Умножение\n";
         LNum result;
 
         int lenthThis = static_cast<int>(num.size());
@@ -367,8 +383,11 @@ public:
             result.num[i] = resNum[j];
         }
         
-        result.clear();
+        result.clearLeadingZeros();
 
+        if (result.abs() == LNum(0)) {
+            result.sign_ = 1;
+        }
         return result;
     }
     
@@ -382,14 +401,19 @@ public:
         return 1;
     }
 
-    LNum operator/(const LNum & other)
+    LNum operator/(LNum & other)
     {
+        //std::cout << "Деление\n";
+        if (other.abs() == LNum(0)) {
+            std::cout << "ОШИБКА! Произошло деление на 0.\n";
+        }
+
         LNum result;
         
         result.sign_ = sign_ * other.sign_;
 
-        LNum dividend = (*this);
-        LNum divider = other;
+        LNum dividend = (*this).abs();
+        LNum divider = other.abs();
         LNum ten(10);
         LNum base(pow(10, orderOfBase));
 
@@ -407,7 +431,7 @@ public:
             minuend = minuend * base;
             LNum term = LNum(dividend.num[i]);
             minuend = minuend + term;
-            minuend.clear();
+            minuend.clearLeadingZeros();
             
             if (!(minuend < divider)) {
                 int l = 0;
@@ -415,7 +439,7 @@ public:
                 while (r - l > 1) {
                     int m = (l + r) / 2;
                     
-                    if ((divider.abs() * LNum(m)) > minuend) {
+                    if ((divider * LNum(m)) > minuend) {
                         r = m;
                     }
                     else {
@@ -429,7 +453,12 @@ public:
             }
         }
 
-        result.clear();
+        result.clearLeadingZeros();
+        
+        if (result.abs() == LNum(0)) {
+            result.sign_ = 1;
+        }
+        
         return result;
     }
 
@@ -476,12 +505,6 @@ public:
         std::cout << "\n";
     }
 
-    ~LNum()
-    {
-        --countOfLNums;
-    }
-
-
 private:
 
     std::vector <int> num;
@@ -494,14 +517,9 @@ private:
 };
 
 int LNum::countOfLNums = 0;
-long long LNum::accuracy_ = 1e9;
+long long LNum::accuracy_ = 20;
 
 LNum operator"" _LN(const char* startVal)
 {
     return LNum(startVal);
-}
-
-int main() {
-    
-    return 0;
 }
