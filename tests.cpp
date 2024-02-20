@@ -615,5 +615,40 @@ int main() {
         std::cout << "\n";
     }
     
+    {
+        LNum A = LNum(4); 
+        LNum B = 0_LN;
+        LNum C = A / B;
+        C.print();
+        std::cout << std::endl;
+    }
+    
+    {
+        LNum A = "234";
+        A = -A;
+        A.print();
+        LNum B(5);
+        B = B + A;
+        B.print();
+        A.print();
+        std::cout << std::endl;
+    }
+    
+    {
+        LNum A = LNum(4); 
+        LNum B = 4000000000000000000000_LN;
+        LNum C = A / B;
+        C.print();
+        std::cout << std::endl;
+    }
+    
+    {
+        LNum A = LNum(4); 
+        LNum B(-0);
+        LNum C = A * B;
+        C.print();
+        std::cout << std::endl;
+    }
+    
     return 0;
 }
