@@ -3,9 +3,9 @@ project("calculating-pi")
 
 set(SOURCE_EXE PI.cpp)
 
-set(SOURCE_LIB LNum.cpp)
+set(SOURCE_EXE tests.cpp)
 
-set(SOURCE_LIB tests.cpp)
+set(SOURCE_LIB LNum.cpp)
 
 add_library(LNum STATIC ${SOURCE_LIB})
 
