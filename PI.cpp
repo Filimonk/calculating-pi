@@ -3,7 +3,7 @@
 #include<math.h>
 #include<time.h>
 
-#include "LNum.h"
+#include "LNum.cpp"
 
 int main() {
     int accuracy;
