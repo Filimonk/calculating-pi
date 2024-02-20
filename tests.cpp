@@ -10,7 +10,7 @@ public:
     LNum()
     {
         num.resize((accuracy_ + orderOfBase - 1) / orderOfBase);
-        ++countOfLNums;
+        countOfLNums = 1;
     }
 
     explicit LNum(double startVal)
@@ -20,7 +20,7 @@ public:
         long long numberOfDec = (accuracy_ + orderOfBase - 1) /
                                    orderOfBase * orderOfBase;
 
-        ++countOfLNums;
+        countOfLNums = 1;
 
         std::string strStartVal = std::to_string(startVal);
         std::string strIntPart = "";
@@ -63,11 +63,12 @@ public:
         }
     }
 
-    explicit LNum(int startVal) {
+    explicit LNum(int startVal)
+    {
         LNum support(static_cast<double>(startVal));
         (*this) = support;
         
-        ++countOfLNums;
+        countOfLNums = 1;
     }
     
     LNum(const char* startVal)
@@ -75,7 +76,7 @@ public:
         long long numberOfDec = (accuracy_ + orderOfBase - 1) /
                                    orderOfBase * orderOfBase;
 
-        ++countOfLNums;
+        countOfLNums = 1;
 
         std::string strStartVal = "";
 
@@ -140,33 +141,36 @@ public:
         return absThis;
     }
 
-    LNum & operator-()
+    LNum operator-()
     {
-        sign_ *= -1;
-        return (*this);
+        LNum support;
+        
+        support.num = num;
+        support.sign_ = -sign_;
+        
+        return support;
     }
 
     LNum & operator=(const LNum other) {
-        ++countOfLNums;
-
         num = other.num;
         sign_ = other.sign_;
 
         return (*this);
     }
     
-    void clear()
+    void clearLeadingZeros()
     {
         int lenth = static_cast<int>(num.size());
         for (int i = lenth-1; 
                     i > (accuracy_ + orderOfBase - 1) / orderOfBase; --i) {
-                        if (num[i] == 0) {
-                            num.pop_back();
-                        }
-                        else {
-                            return;
-                        }
-                    }
+            
+            if (num[i] == 0) {
+                num.pop_back();
+            }
+            else {
+                return;
+            }
+        }
     }
 
     bool operator==(const LNum &other)
@@ -231,7 +235,7 @@ public:
     
     LNum sumWithDifferentSigns(LNum &other)
     {
-        std::cout << "Сумма чисел разных знаков\n";
+        //std::cout << "Сумма чисел разных знаков\n";
         LNum result;
         int base = pow(10, orderOfBase);
 
@@ -281,13 +285,13 @@ public:
         return result;
     }
 
-    LNum operator+(LNum &other)
+    LNum operator+(LNum other)
     {
         if (sign_ != other.sign_) {
             return sumWithDifferentSigns(other);
         }
         
-        std::cout << "Сумма чисел с одинаковым знаком\n";
+        //std::cout << "Сумма чисел с одинаковым знаком\n";
         LNum result;
         int base = pow(10, orderOfBase);
 
@@ -329,15 +333,15 @@ public:
 
     LNum operator-(LNum &other)
     {
-        std::cout << "Разность\n";
+        //std::cout << "Разность\n";
         LNum result = (*this) + (-other);
-        -other;
+        
         return result;
     }
 
     LNum operator*(const LNum &other) const
     {
-        std::cout << "Умножение\n";
+        //std::cout << "Умножение\n";
         LNum result;
 
         int lenthThis = static_cast<int>(num.size());
@@ -377,7 +381,7 @@ public:
             result.num[i] = resNum[j];
         }
         
-        result.clear();
+        result.clearLeadingZeros();
 
         if (result.abs() == LNum(0)) {
             result.sign_ = 1;
@@ -395,15 +399,19 @@ public:
         return 1;
     }
 
-    LNum operator/(const LNum & other)
+    LNum operator/(LNum & other)
     {
-        std::cout << "Деление\n";
+        //std::cout << "Деление\n";
+        if (other == LNum(0)) {
+            std::cout << "ОШИБКА! Произошло деление на 0.\n";
+        }
+
         LNum result;
         
         result.sign_ = sign_ * other.sign_;
 
-        LNum dividend = (*this);
-        LNum divider = other;
+        LNum dividend = (*this).abs();
+        LNum divider = other.abs();
         LNum ten(10);
         LNum base(pow(10, orderOfBase));
 
@@ -421,7 +429,7 @@ public:
             minuend = minuend * base;
             LNum term = LNum(dividend.num[i]);
             minuend = minuend + term;
-            minuend.clear();
+            minuend.clearLeadingZeros();
             
             if (!(minuend < divider)) {
                 int l = 0;
@@ -429,7 +437,7 @@ public:
                 while (r - l > 1) {
                     int m = (l + r) / 2;
                     
-                    if ((divider.abs() * LNum(m)) > minuend) {
+                    if ((divider * LNum(m)) > minuend) {
                         r = m;
                     }
                     else {
@@ -443,11 +451,12 @@ public:
             }
         }
 
-        result.clear();
+        result.clearLeadingZeros();
         
         if (result.abs() == LNum(0)) {
             result.sign_ = 1;
         }
+        
         return result;
     }
 
@@ -512,7 +521,7 @@ private:
 };
 
 int LNum::countOfLNums = 0;
-long long LNum::accuracy_ = 1e5;
+long long LNum::accuracy_ = 20;
 
 LNum operator"" _LN(const char* startVal)
 {
@@ -521,7 +530,6 @@ LNum operator"" _LN(const char* startVal)
 
 int main() {
     {
-        LNum::setAccuracy(15);
         LNum A = -123_LN; 
         LNum B(934.);
         
@@ -537,7 +545,6 @@ int main() {
     }
     
     {
-        LNum::setAccuracy(15);
         LNum A = 0.99999999999_LN; 
         LNum B = 0.0000000001_LN;
         
@@ -553,7 +560,6 @@ int main() {
     }
     
     {
-        LNum::setAccuracy(10);
         LNum A = 100000000000_LN; 
         LNum B = 0.0000000001_LN;
         
@@ -569,7 +575,6 @@ int main() {
     }
     
     {
-        LNum::setAccuracy(10);
         LNum A(13); 
         LNum B(-.2);
         
@@ -585,7 +590,6 @@ int main() {
     }
     
     {
-        LNum::setAccuracy(10);
         LNum A(-0); 
         LNum B(-1);
         
@@ -600,6 +604,20 @@ int main() {
         std::cout << "\n";
     }
     
+    {
+        LNum A = 14.000000000009_LN; 
+        LNum B = -0.00000000001_LN;
+        
+        LNum C = A + B;
+        A.print(); std::cout << '+'; B.print(); std::cout << '='; C.print();
+        C = A - B;
+        A.print(); std::cout << '-'; B.print(); std::cout << '='; C.print();
+        C = A * B;
+        A.print(); std::cout << '*'; B.print(); std::cout << '='; C.print();
+        C = A / B;
+        A.print(); std::cout << '/'; B.print(); std::cout << '='; C.print();
+        std::cout << "\n";
+    }
     
     return 0;
 }
