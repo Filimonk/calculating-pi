@@ -12,19 +12,19 @@ int main() {
     std::cin >> accuracy;
     std::cout << std::endl;
     
-    LNum::setAccuracy(accuracy);
+    LNums::LNum::setAccuracy(accuracy);
     
     clock_t start = clock();
     
-    LNum PI;
-    LNum four = LNum(4);
+    LNums::LNum PI;
+    LNums::LNum four = LNums::LNum(4);
     for (int k = 1, i = 1; ; k += 2, ++i) {
-        LNum term;
+        LNums::LNum term;
         
-        LNum divider = LNum(k);
+        LNums::LNum divider = LNums::LNum(k);
         term = four / divider;
         
-        if (term == LNum(0)) {
+        if (term == LNums::LNum(0)) {
             break;
         }
         
